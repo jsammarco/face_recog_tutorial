@@ -5,26 +5,49 @@ import os
 import threading
 import queue
 import time
+import pickle
 
-# Step 1: Encode the known faces
+# Step 1: Encode the known faces with caching
 def load_known_faces(directory):
     known_face_encodings = []
     known_face_names = []
     print("Loading encodings for faces...")
+
     for filename in os.listdir(directory):
         if filename.lower().endswith((".jpg", ".png")):
-            # Load image
             image_path = os.path.join(directory, filename)
-            image = face_recognition.load_image_file(image_path)
+            name, _ = os.path.splitext(filename)
+            pkl_path = os.path.join(directory, f"{name}.pkl")
 
-            # Encode face
-            face_encodings = face_recognition.face_encodings(image)
-            if face_encodings:  # Ensure there's a face in the image
-                known_face_encodings.append(face_encodings[0])
-                known_face_names.append(os.path.splitext(filename)[0])  # Use filename as the label
-                print("Loaded encodings for", image_path)
+            if os.path.exists(pkl_path):
+                # Load encoding from pickle file
+                try:
+                    with open(pkl_path, 'rb') as pkl_file:
+                        encoding = pickle.load(pkl_file)
+                        known_face_encodings.append(encoding)
+                        known_face_names.append(name)
+                        print(f"Loaded encoding from {pkl_path}")
+                except Exception as e:
+                    print(f"Error loading {pkl_path}: {e}")
+                    # If loading fails, proceed to generate encoding
             else:
-                print("Failed to load encodings for", image_path)
+                # Generate encoding and save to pickle
+                try:
+                    image = face_recognition.load_image_file(image_path)
+                    face_encodings = face_recognition.face_encodings(image)
+                    if face_encodings:
+                        encoding = face_encodings[0]
+                        known_face_encodings.append(encoding)
+                        known_face_names.append(name)
+                        print(f"Generated and saved encoding for {image_path}")
+
+                        # Save the encoding to a pickle file
+                        with open(pkl_path, 'wb') as pkl_file:
+                            pickle.dump(encoding, pkl_file)
+                    else:
+                        print(f"No faces found in {image_path}. Skipping.")
+                except Exception as e:
+                    print(f"Error processing {image_path}: {e}")
 
     # Convert to NumPy array for faster computations
     known_face_encodings = np.array(known_face_encodings)
@@ -74,7 +97,7 @@ if __name__ == "__main__":
     video_capture.start()
     print("Started Video Thread...")
 
-    process_every_n_frames = 1
+    process_every_n_frames = 2
     frame_count = 0
 
     # Initialize variables for multi-threading
