@@ -146,11 +146,11 @@ if __name__ == "__main__":
                 left *= 2
 
                 # Draw a box around the face
-                cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
+                cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
 
                 # Draw the label with the name and confidence score
-                label = f"{name} ({confidence:.2f}%)"
-                cv2.putText(frame, label, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+                label = f"{name} ({confidence:.0f}%)"
+                cv2.putText(frame, label, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
 
             # Display the resulting frame
             cv2.imshow("Video", frame)
