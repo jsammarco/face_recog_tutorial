@@ -25,7 +25,7 @@ and `OpenCV` for video processing. Encoded faces are cached in pickle files for 
    ```
 
    Ensure that you have the following installed:
-   - Python 3.6 or later
+   - Python 3.8 or later
    - `face_recognition`
    - `opencv-python`
    - `numpy`
@@ -59,7 +59,7 @@ face_recog_tutorial/
 
 ## Requirements
 
-- Python 3.6+
+- Python 3.8+
 - OpenCV
 - Face Recognition Library
 - Numpy
